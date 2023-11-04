@@ -1,11 +1,14 @@
 from yutility import orbitals, make_gif, timer
 from TCutility import results
-import basis_set
+from tcintegral import basis_set, grid
 from scm import plams
 import numpy as np
 from yviewer import viewer
-from math import sqrt, cos, sin, pi
+from math import sqrt, cos, sin
 import matplotlib.pyplot as plt
+import os
+
+j = os.path.join
 
 
 def get_rotmat(x=0, y=0, z=0):
@@ -21,8 +24,7 @@ def get_rotmat(x=0, y=0, z=0):
     return Rx @ Ry @ Rz
 
 
-
-def get(rkf_file, orb_name, bs_file=r"basis_sets/cc-pvdz.1.cp2k"):
+def get(rkf_file, orb_name, bs_file=r"basis_sets/sto-2g.1.cp2k"):
     bs = basis_set.BasisSet(bs_file)
     orbs = orbitals.Orbitals(rkf_file)
     xyz = np.array(orbs.reader.read('Geometry', 'xyz')).reshape(-1, 3) * 0.529177
@@ -49,7 +51,6 @@ def get(rkf_file, orb_name, bs_file=r"basis_sets/cc-pvdz.1.cp2k"):
 
     # viewer.show(mol)
     orb = orbs.mos[orb_name]
-    aos = []
     ao_coeffs = {}
     for sfo, coeff in zip(orbs.sfos.sfos, orb.coeffs):
         if (sfo.fragment, sfo.name) in bs:
@@ -74,6 +75,18 @@ class MolecularOrbital:
         self.molecule = molecule
         self._norm = None
 
+    def __repr__(self):
+        r = ''
+        if hasattr(self, 'moleculename'):
+            r += self.moleculename + '('
+
+        r += self.name
+
+        if hasattr(self, 'moleculename'):
+            r += ')'
+            
+        return r
+
     def __call__(self, r):
         r = np.atleast_2d(r)
         wf = np.zeros(r.shape[0])
@@ -83,19 +96,21 @@ class MolecularOrbital:
 
     def get_cub(self, p=None, cutoff=[.4, .45]):
         if p is None:
-            x = np.linspace(-6, 6, 80).reshape(-1, 1)
-            y = np.linspace(-6, 6, 80).reshape(-1, 1)
-            z = np.linspace(-6, 6, 80).reshape(-1, 1)
+            # x = np.linspace(-6, 6, 80).reshape(-1, 1)
+            # y = np.linspace(-6, 6, 80).reshape(-1, 1)
+            # z = np.linspace(-6, 6, 80).reshape(-1, 1)
 
-            p = np.meshgrid(x, y, z)
-            p = [r_.flatten() for r_ in p]
-            p = np.vstack(p).T
+            # p = np.meshgrid(x, y, z)
+            # p = [r_.flatten() for r_ in p]
+            # p = np.vstack(p).T
+            p = grid.from_molecule(self.molecule, atom_scale=5).points
         wf = self(p)
         wf_abs = abs(wf)/np.max(abs(wf))
-        idx = np.where(np.logical_and(wf_abs > cutoff[0], wf_abs < cutoff[1]))[0]
+        # idx = np.where(np.logical_and(wf_abs > cutoff[0], wf_abs < cutoff[1]))[0]
+        idx = np.arange(len(wf_abs))
         COL1 = np.array((255, 0, 0)) if self.occupied else np.array((255, 165, 0))
         COL2 = np.array((0, 0, 255)) if self.occupied else np.array((0, 255, 255))
-        return [p[idx], np.where(wf[idx]>0, 0, 1).reshape(-1, 1) * COL1 + np.where(wf[idx]<0, 0, 1).reshape(-1, 1) * COL2]
+        return [p[idx], np.where(wf[idx] > 0, 0, 1).reshape(-1, 1) * COL1 + np.where(wf[idx] < 0, 0, 1).reshape(-1, 1) * COL2]
 
     def show(self, p=None):
         viewer.show(self.molecule, molinfo=[{'cub': self.get_cub(p)}])
@@ -160,6 +175,8 @@ class MolecularOrbital:
             p = np.meshgrid(x, y, z)
             p = [r_.flatten() for r_ in p]
             p = np.vstack(p).T
+            # g = grid.from_molecule(self.molecule, atom_scale=5)
+            # g += grid.from_molecule(other.molecule, atom_scale=5)
             wf1 = self(p)
             wf2 = other(p)
             return (wf1 * wf2).sum()
@@ -167,50 +184,55 @@ class MolecularOrbital:
             raise KeyError(f'Unknown method {method}, must be "exact" or "numeric"')
 
 
-
 if __name__ == '__main__':
-    # mo = get(r"/Users/yumanhordijk/PhD/fast_EDA/calculations/benzene/go.results/adf.rkf", 'LUMO')
+    # overlaps = []
+    # ds = []
+    # for d in os.listdir(r"../../test/fixtures/reactants/MeMe_ADF_distance"):
+    #     print(j(r"../../test/fixtures/reactants/MeMe_ADF_distance", d))
 
+    #     orbs = orbitals.Orbitals(j(r"../../test/fixtures/reactants/MeMe_ADF_distance", d, 'sp.results', 'adf.rkf'))
+
+    #     ds.append(float(d))
+    #     overlaps.append(orbs.sfos['Me1(SUMO)'] @ orbs.sfos['Me2(SOMO)'] * 100)
+
+    # plt.plot(ds, overlaps, label='ADF')
+
+    ds = np.linspace(0, 6, 34)
+    overlaps = []
     # mols = []
-    # cubs = []
-    # for rot in np.linspace(0, pi*2, 240):
-    #     mo = get(r"/Users/yumanhordijk/PhD/fast_EDA/calculations/benzene/go.results/adf.rkf", 'LUMO')
-    #     mo.rotate(x=rot, y=rot, z=rot)
-    #     mo.translate([0, 0, -2])
-    #     mols.append(mo.molecule)
-    #     print('Ik ben Yuman')
-    #     # cubs.append(mo.basis_functions[3].get_cub())
-    #     cubs.append(mo.get_cub())
-    #     print()
-    # files = [f'figs/{i}.png' for i in range(len(mols))]
-    # viewer.screen_shot_mols(mols, files, [{'cub': cub} for cub in cubs], simple=True)
-    # make_gif('rotate_PVDZ_LUMO.mp4', files, fps=60)
-
-
-    ds = np.linspace(0, 3, 34)
+    for d in ds:
+        print(d)
+        mo1 = get(r"../../test/fixtures/reactants/ethene/sp.results/adf.rkf", 'HOMO', bs_file=r"basis_sets/cc-pvdz.1.cp2k")
+        mo1.rotate(y=np.pi/2)
+        mo1.translate([d, 0, 1])
+        mo2 = get(r"../../test/fixtures/reactants/butadiene/go.results/adf.rkf", 'LUMO', bs_file=r"basis_sets/cc-pvdz.1.cp2k")
+        overlaps.append(mo1.overlap(mo2)*100)
+    plt.plot(ds, overlaps, label='Exact (cc-PVDZ)')
+    ds = np.linspace(0, 6, 34)
 
     overlaps = []
     for d in ds:
         print(d)
-        mo1 = get(r"/Users/yumanhordijk/PhD/fast_EDA/calculations/methyl/sp.results/adf.rkf", 'SOMO')
-        mo1.translate([0, 0, d])
-        mo2 = get(r"/Users/yumanhordijk/PhD/fast_EDA/calculations/methyl/sp.results/adf.rkf", 'SOMO')
-        overlaps.append(-mo1.overlap(mo2)*100)
-    plt.plot(ds, overlaps, label='Exact')
+        mo1 = get(r"../../test/fixtures/reactants/ethene/sp.results/adf.rkf", 'HOMO', bs_file=r"basis_sets/sto-6g.1.cp2k")
+        mo1.rotate(y=np.pi/2)
+        mo1.translate([d, 0, 1])
+        mo2 = get(r"../../test/fixtures/reactants/butadiene/go.results/adf.rkf", 'LUMO', bs_file=r"basis_sets/sto-6g.1.cp2k")
+        overlaps.append(mo1.overlap(mo2)*100)
+    plt.plot(ds, overlaps, label='Exact (STO-6G)')
 
-    ds = np.linspace(0, 3, 34)
-
+    ds = np.linspace(0, 6, 34)
     overlaps = []
     for d in ds:
         print(d)
-        mo1 = get(r"/Users/yumanhordijk/PhD/fast_EDA/calculations/methyl/sp.results/adf.rkf", 'SOMO')
-        mo1.translate([0, 0, d])
-        mo2 = get(r"/Users/yumanhordijk/PhD/fast_EDA/calculations/methyl/sp.results/adf.rkf", 'SOMO')
-        overlaps.append(-mo1.overlap(mo2, method='numeric')*100)
-    plt.plot(ds, overlaps, label='Numeric')
+        mo1 = get(r"../../test/fixtures/reactants/ethene/sp.results/adf.rkf", 'HOMO', bs_file=r"basis_sets/sto-6g.1.cp2k")
+        mo1.rotate(y=np.pi/2)
+        mo1.translate([d, 0, 1])
+        mo2 = get(r"../../test/fixtures/reactants/butadiene/go.results/adf.rkf", 'LUMO', bs_file=r"basis_sets/sto-6g.1.cp2k")
+        overlaps.append(mo1.overlap(mo2, method='numeric')*100)
+    plt.plot(ds, overlaps, label='Numeric (STO-6G)')
 
-    plt.xlabel('Me - Me Distance (Angstrom)')
-    plt.ylabel('Overlap (%)')
+    plt.xlabel('Ethene - Butadiene Distance (Angstrom)')
+    plt.ylabel(r'$\langle$ HOMO | LUMO $\rangle$ (%)')
     plt.legend()
     timer.print_timings2()
 
