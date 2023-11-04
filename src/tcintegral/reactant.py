@@ -3,9 +3,10 @@ from yutility import geometry, orbitals, ensure_list, timer
 import numpy as np
 from yviewer import viewer
 import os
-import molecular_orbital
+from tcintegral import molecular_orbital
 from math import cos, sin
 import matplotlib.pyplot as plt
+
 
 def get_rotmat(x=0, y=0, z=0):
     Rx = np.array([[1, 0, 0],
@@ -20,23 +21,21 @@ def get_rotmat(x=0, y=0, z=0):
     return Rx @ Ry @ Rz
 
 
-
 class Reactant:
-    def __init__(self, rct_calc_dir, moleculename=None, bs_file_name=r"basis_sets/sto-6g.1.cp2k"):
+    def __init__(self, rct_calc_dir, moleculename=None, bs_file=r"basis_sets/sto-6g.1.cp2k"):
         self.rct_calc_dir = rct_calc_dir
         self.moleculename = moleculename
         if self.moleculename is None:
             self.moleculename = os.path.split(rct_calc_dir)[-1]
 
         self.rkf_res = results.read(rct_calc_dir)
-        self._mol = self.rkf_res.molecule.input
         self.mol = self.rkf_res.molecule.input
         self.loaded_wfs = []
         self.transform = geometry.Transform()
         self._orbitals = orbitals.Orbitals(self.rkf_res.files['adf.rkf'])
         self.mos = []
-        self.bs_file_name = bs_file_name
-        # self.mos = [molecular_orbital.get(self.rkf_res.files['adf.rkf'], mo.name, bs_file_name) for mo in self._orbitals.mos]
+        self.bs_file = bs_file
+        # self.mos = [molecular_orbital.get(self.rkf_res.files['adf.rkf'], mo.name, bs_file) for mo in self._orbitals.mos]
 
     def translate(self, trans):
         self.mol.translate(trans)
@@ -51,12 +50,6 @@ class Reactant:
     def center(self):
         self.translate(np.mean(self.coords, axis=0))
 
-    # @property
-    # def mol(self):
-    #     m = self._mol.copy()
-    #     m.apply_transform(self.transform)
-    #     return m
-
     @property
     def coords(self):
         return self.transform.apply(np.array([atom.coords for atom in self.mol]))
@@ -66,8 +59,11 @@ class Reactant:
             mos = self._orbitals.mos[start:end]
         else:
             mos = self._orbitals.mos[start]
+
         for mo in ensure_list(mos):
-            self.mos.append(molecular_orbital.get(self.rkf_res.files['adf.rkf'], mo.name, self.bs_file_name))
+            orb = molecular_orbital.get(self.rkf_res.files['adf.rkf'], mo.name, self.bs_file)
+            orb.moleculename = self.moleculename
+            self.mos.append(orb)
 
     def show(self, p=None):
         if p is None:
