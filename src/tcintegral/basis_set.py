@@ -1,7 +1,7 @@
 from TCutility.results.result import Result
 import numpy as np
 from pprint import pprint
-import contracted
+from tcintegral import contracted
 import os
 import matplotlib.pyplot as plt
 
