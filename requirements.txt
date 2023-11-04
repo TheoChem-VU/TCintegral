@@ -1,3 +1,5 @@
 GitPython
 numpy
 matplotlib
+listfunc
+TCutility
