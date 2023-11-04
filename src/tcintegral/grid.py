@@ -2,6 +2,7 @@ import numpy as np
 from listfunc import ensure_list
 from collections.abc import Iterable
 from math import ceil, floor
+from yutility import atom_data
 
 
 class Grid:
@@ -18,6 +19,7 @@ class Grid:
         self.spacing = ensure_list(spacing)
         self.origin = None
         self.indices = None
+        self.cutoff_indices = None
         self.values = None
         self.colors = None
 
