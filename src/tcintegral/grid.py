@@ -146,3 +146,11 @@ class Sphere(Grid):
         lower_corner = np.array(self.origin) - np.array(self.radius)
         top_corner = np.array(self.origin) + np.array(self.radius)
         return list(zip(lower_corner, top_corner))
+
+
+def from_molecule(mol, spacing=.5, atom_scale=1):
+    grid = Grid(spacing)
+    for atom in mol:
+        rad = atom_data.radius(atom.symbol)
+        grid += Sphere(atom.coords, rad*atom_scale)
+    return grid
