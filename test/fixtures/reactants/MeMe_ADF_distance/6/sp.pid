@@ -1,0 +1,36 @@
+# status: ready
+# pid: 23249
+# hostname: localhost
+# username: 
+# jobscript: 
+# prolog: 
+# epilog: 
+# jobdir: $HOME/jobs
+# fakejob: 0
+# comparewithtarget: ok
+# error: 0
+# warning: 0
+# runcmd: sh "$job" "NSCM=$options ; export NSCM"
+# batch: yes
+# options: 
+# killcmd: killall $pid
+# jobstatuscmd: ps -e | grep -w $pid | grep -v grep
+# sysstatuscmd: uptime
+# pidfile: no
+# label: Sequential
+# logfile: logfile
+# backup: 
+# whenready: 
+# scmjobid: 1695744343200-94396
+# paused: 0
+# remoteprefix: 
+# jobtype: .adf
+# mtime: 1695744348
+# cloudinit: 
+# cloudid: 
+# copyback: 
+# privatesshkeypath: 
+# plamscmd: local:*,1
+# comments: 
+# dependency: start /Users/yumanhordijk/PhD/pi_rotation/MeMe_ADF_distance/6/sp.Me1.job
+# dependency: start /Users/yumanhordijk/PhD/pi_rotation/MeMe_ADF_distance/6/sp.Me2.job

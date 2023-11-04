@@ -1,0 +1,147 @@
+
+
+ Parallel Execution: Process Information
+ ==============================================================================
+ Rank   Node Name                              NodeID   MyNodeRank  NodeMaster
+    0   dhcp-187-164.clients.vu.nl                0          0          0
+    1   dhcp-187-164.clients.vu.nl                0          1         -1
+    2   dhcp-187-164.clients.vu.nl                0          2         -1
+    3   dhcp-187-164.clients.vu.nl                0          3         -1
+    4   dhcp-187-164.clients.vu.nl                0          4         -1
+    5   dhcp-187-164.clients.vu.nl                0          5         -1
+    6   dhcp-187-164.clients.vu.nl                0          6         -1
+    7   dhcp-187-164.clients.vu.nl                0          7         -1
+    8   dhcp-187-164.clients.vu.nl                0          8         -1
+    9   dhcp-187-164.clients.vu.nl                0          9         -1
+ ==============================================================================
+
+
+May use up to 15625MB of RAM as shared memory on node 0
+
+ *******************************************************************************
+ *                                                                             *
+ *  --------------------------------                                           *
+ *   Amsterdam Modeling Suite (AMS)              2022.103                      *
+ *  --------------------------------                                           *
+ *                                               r104886 2022-06-17            *
+ *                                                                             *
+ *                                                                             *
+ *                              =================                              *
+ *                              |               |                              *
+ *                              |     A M S     |                              *
+ *                              |               |                              *
+ *                              =================                              *
+ *                                                                             *
+ *                                                                             *
+ *   Online information and documentation:  https://www.scm.com/support/       *
+ *   E-mail:  support@scm.com   info@scm.com                                   *
+ *                                                                             *
+ *   Scientific publications using AMS results must be properly referenced     *
+ *   See the User Manuals (or the web site) for recommended citations          *
+ *   The terms and conditions of the End User License Agreement apply to       *
+ *   the use of AMS, https://www.scm.com/license-terms/                        *
+ *                                                                             *
+ **********************  x86_64_darwin_intel / openmpi  ************************
+ 
+ Licensed to: Prof Visscher, Prof Bickelhaupt, Prof Fonseca Guerra / Vrije Universiteit, Theoretische Chemie / Amsterdam / NETHERLANDS 2022-12-13 09:59:29
+ SCM User ID: u21794
+  
+ AMS 2022.103  RunTime: Sep28-2023 12:09:28  ShM Nodes: 1  Procs: 10
+
+ AMS jobname: ams
+ AMS jobid  : 121499625
+
+ Start   directory: /Users/yumanhordijk/PhD/pi_rotation/ethene/tmp.yumanhordijk.60569.0.noindex/
+ Results directory: /Users/yumanhordijk/PhD/pi_rotation/ethene/sp.results/
+ Scratch directory: /tmp/amstmp_ams_kid0.121499625/
+
+
+ Communication costs MPI_COMM_WORLD:      9.822 usec per message,   0.3999 usec per 8-byte item
+ Communication costs for intra-node:     23.587 usec per message,   0.5136 usec per 8-byte item
+
+ RNG seed: 1721505923 83662229 340666554 -532844721 2055463271 1499060836 1101751597 -1408706866
+
+
+
+                     *************************************************************************
+                     *  ADF 2022.103  RunTime: Sep28-2023 12:09:33  ShM Nodes: 1  Procs: 10  *
+                     *************************************************************************
+  
+       ***************************
+       *  GEOMETRY OPTIMIZATION  *
+       ***************************
+
+Optimization Method                    Quasi Newton
+Optimization Coordinates               Delocalized Coordinates
+Optimize lattice                       F
+ 
+ ------------------------------------------------------
+ Convergence criteria (Hartree,Angstrom)
+ ------------------------------------------------------
+ Maximum gradient               0.001000000000
+ Maximum rms gradient           0.000666666667
+ Maximum step allowed           0.010000000000
+ Maximum rms step allowed       0.006666666667
+ Maximum energy change allowe   0.000100000000
+ Maximum stress energy allowe   0.000500000000
+ 
+Initial model Hessian                  Automatic Hessian
+ 
+------------------------------------
+Quasi-Newton Optimizer Parameters
+------------------------------------
+Hessian Update Method                  BFGS
+Maximum number of steps                  250
+First GDIIS cycle                          0
+Maximum GDIIS vectors                      0
+Trust radius (bohr)                        0.200000
+Trust radius varies                        T
+Constraints converged at all steps         T
+Use projector                              T
+ 
+ Rigid motions settings for: old optimizer
+ Atomic rotations (x,y,z):     T T T
+ Atomic translations (x,y,z):  T T T
+ Tolerance:                   1.000000000000000E-006
+ 
+--------
+Geometry
+--------
+Formula: C4H6
+Atoms
+  Index Symbol   x (angstrom)   y (angstrom)   z (angstrom)
+      1      C    -0.00000000    -1.56281812     0.44864610
+      2      C    -0.00000000    -0.74506625    -0.62987097
+      3      C     0.00000000     0.74506625    -0.62987097
+      4      C     0.00000000     1.56281812     0.44864610
+      5      H    -0.00000000    -2.65471597     0.33377481
+      6      H    -0.00000000    -1.18486815     1.47939365
+      7      H    -0.00000000    -1.20470546    -1.63194358
+      8      H     0.00000000     1.20470546    -1.63194358
+      9      H     0.00000000     2.65471597     0.33377481
+     10      H     0.00000000     1.18486815     1.47939365
+ 
+Total System Charge             0.00000
+Bonding info available!
+ 
+ 
+----------------
+ADF Engine Input
+----------------
+ 
+ Basis
+ Type SZ
+ Core None
+ End
+ XC
+ GGA OLYP
+ End
+ Symmetry NOSYM
+ NumericalQuality Good
+ 
+
+ Title: *** (NO TITLE) ***
+
+Number of symmetry operators: 4
+Schoenflies symbol:           C(2V)
+ Using automatic Hessian for delocalized coordinates.

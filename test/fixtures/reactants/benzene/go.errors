@@ -1,0 +1,2 @@
+WARNING: Inter-node communication is slow! You may want to run on fewer nodes (or even one).
+WARNING: Intra-node communication is VERY slow! Check CPU affinity, hyperthreading and over-subscription

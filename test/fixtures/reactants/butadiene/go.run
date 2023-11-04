@@ -1,0 +1,44 @@
+#!/bin/sh
+
+"$AMSBIN/ams" << eor
+
+Task GeometryOptimization
+System
+    Atoms
+        C 0.0 -1.51139118 0.44346505 
+        C 0.0 -0.72970986 -0.63458689 
+        C 0.0 0.72970986 -0.63458689 
+        C 0.0 1.51139118 0.44346505 
+        H 0.0 -2.58924027 0.35810377 
+        H 0.0 -1.12280281 1.45334919 
+        H 0.0 -1.18799415 -1.62033112 
+        H 0.0 1.18799415 -1.62033112 
+        H 0.0 2.58924027 0.35810377 
+        H 0.0 1.12280281 1.45334919 
+    End
+    BondOrders
+         1 2 2.0
+         1 5 1.0
+         1 6 1.0
+         2 3 1.0
+         2 7 1.0
+         3 4 2.0
+         3 8 1.0
+         4 9 1.0
+         4 10 1.0
+    End
+End
+
+Engine ADF
+    Basis
+        Type SZ
+        Core None
+    End
+    XC
+        GGA OLYP
+    End
+    Symmetry NOSYM
+    NumericalQuality Good
+EndEngine
+eor
+
