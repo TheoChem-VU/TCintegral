@@ -1,5 +1,5 @@
 [project]
-name = "TCutility"
+name = "TCintegral"
 authors = [
   { name="Yuman Hordijk", email="yumanhordijk@gmail.com"}]
 description = "Fast molecular integrals in Python"
