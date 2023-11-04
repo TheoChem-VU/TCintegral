@@ -87,6 +87,64 @@ class Grid:
             self.sub_grids.append(('+', other))
         return self
 
+    def __contains__(self, p):
+        return True
+
+    def set_cutoff(self, val, use_abs=True):
+        values = self.values
+        if use_abs:
+            values = abs(values)
+        self.cutoff_indices = np.where(values > val)
+
+    def show(self, **kwargs):
+        if self.ndims == 2:
+            plt.scatter(grid.points[:, 0], grid.points[:, 1])
+            plt.show()
+            return
+
+        if self.ndims == 3:
+            import yviewer2
+            from yutility import geometry
+
+            screen = yviewer2.Screen
+            screen.settings.use_3d = True
+            screen.settings.camera_pos = [0, 0, -10]
+            loop = yviewer2.MainLoop
+
+            points = self.points
+            rot = [0, 0]
+            trans = [0, 0]
+            zoom = 0
+            while loop.runs():
+                rot = (rot[0]*.95, rot[1]*.95)
+                trans = (trans[0]*.95, trans[1]*.95)
+                zoom = zoom*.75
+                if yviewer2.inputs.mouse.left.hold:
+                    screen.clear()
+                    rot = -yviewer2.inputs.mouse.dy/200, yviewer2.inputs.mouse.dx/200
+
+                if yviewer2.inputs.mouse.right.hold:
+                    screen.clear()
+                    trans = (-yviewer2.inputs.mouse.dx/100, -yviewer2.inputs.mouse.dy/100)
+
+                if yviewer2.inputs.mouse.scrollup:
+                    screen.clear()
+                    zoom = .25
+                if yviewer2.inputs.mouse.scrolldown:
+                    screen.clear()
+                    zoom = -.25
+
+                screen.settings.camera_pos[0] += trans[0]
+                screen.settings.camera_pos[1] += trans[1]
+                screen.settings.camera_pos[2] += zoom
+
+                R = geometry.get_rotation_matrix(x=rot[0], y=rot[1])
+                points = points @ R
+                screen.clear()
+                self.indices = None
+                screen.draw_pixels(points, self.colors)
+                screen.update()
+
 
 class Cube(Grid):
     def __init__(self, origin: Iterable[float] or float = None, 
