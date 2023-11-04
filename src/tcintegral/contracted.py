@@ -1,7 +1,21 @@
 import numpy as np
 from math import sqrt
-import primitive
+from tcintegral import primitive
 from yutility import timer
+from math import cos, sin
+
+
+def get_rotmat(x=0, y=0, z=0):
+    Rx = np.array([[1, 0, 0],
+                   [0, cos(x), -sin(x)],
+                   [0, sin(x), cos(x)]])
+    Ry = np.array([[cos(y), 0, sin(y)],
+                   [0, 1, 0],
+                   [-sin(y), 0, cos(y)]])
+    Rz = np.array([[cos(z), -sin(z), 0],
+                   [sin(z), cos(z), 0],
+                   [0, 0, 1]])
+    return Rx @ Ry @ Rz
 
 
 class Contracted:
@@ -51,7 +65,7 @@ class Contracted:
         idx = np.where(np.logical_and(wf_abs > cutoff[0], wf_abs < cutoff[1]))[0]
         COL1 = np.array((255, 0, 0)) 
         COL2 = np.array((0, 0, 255)) 
-        return [p[idx], np.where(wf[idx]>0, 0, 1).reshape(-1, 1) * COL1 + np.where(wf[idx]<0, 0, 1).reshape(-1, 1) * COL2]
+        return [p[idx], np.where(wf[idx] > 0, 0, 1).reshape(-1, 1) * COL1 + np.where(wf[idx] < 0, 0, 1).reshape(-1, 1) * COL2]
 
     @timer.Time
     def overlap(self, other: 'Contracted'):
@@ -72,4 +86,3 @@ class Contracted:
 
         for p in self.primitives:
             p.center = p.center @ R.T
-
