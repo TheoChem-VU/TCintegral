@@ -15,7 +15,7 @@ def double_factorial(n):
 class Primitive:
     def __init__(self, exponent: float, center: list[float], index: list[int]):
         self.exponent = exponent  # exponent for the gaussian part
-        self.center = np.atleast_1d(center)  # position of the primitive center
+        self.center = np.atleast_1d(center)*0.52918  # position of the primitive center converted from Angstrom to Bohr
         self.index = np.atleast_1d(index)  # indices of the angular part
         self._norm = None
 
