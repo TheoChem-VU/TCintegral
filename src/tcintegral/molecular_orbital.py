@@ -1,5 +1,4 @@
-from yutility import orbitals, make_gif, timer
-from TCutility import results
+from yutility import orbitals, timer
 from tcintegral import basis_set, grid
 from scm import plams
 import numpy as np
@@ -132,16 +131,16 @@ class MolecularOrbital:
             R = get_rotmat(x=x, y=y, z=z)
 
         unq_atoms = set([f.fragment_unique_name for f in self.basis_functions])
-        unq_ls = set([f.l for f in self.basis_functions])
+        unq_angulars = set([f.angular for f in self.basis_functions])
         f_by_atom = {atom: [f for f in self.basis_functions if f.fragment_unique_name == atom] for atom in unq_atoms}
-        f_by_atom_and_l = {atom: {l: [f for f in fs if f.l == l] for l in unq_ls} for atom, fs in f_by_atom.items()}
+        f_by_atom_and_angular = {atom: {angular: [f for f in fs if f.angular == angular] for angular in unq_angulars} for atom, fs in f_by_atom.items()}
 
         new_coeffs = []
         for f, coeff in zip(self.basis_functions, self.coefficients):
             f.rotate(R)
-            like_fs = f_by_atom_and_l[f.fragment_unique_name][f.l]
+            like_fs = f_by_atom_and_angular[f.fragment_unique_name][f.angular]
             like_fs = [f_ for f_ in like_fs if f_.n == f.n]
-            if f.l == 0:  # we dont have to rotate s-orbitals
+            if f.angular == 0:  # we dont have to rotate s-orbitals
                 new_coeffs.append(coeff)
                 continue
 

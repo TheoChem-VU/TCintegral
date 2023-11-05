@@ -1,5 +1,5 @@
 import numpy as np
-from math import pi, sqrt, exp
+from math import pi, sqrt
 from yutility import timer
 
 
@@ -75,19 +75,17 @@ def _overlap(p1: Primitive, p2: Primitive):
 
         S00 = sqrt(pi/zeta) * np.exp(-p1.exponent * p2.exponent / zeta * (p1.center - p2.center)**2)
 
-
     def obara_saika(N1, N2, idx):
         # first calculate the s-s overlap, this will be the first entry in our recurrence relations
         # with timer.Timer('_overlap.obara_saika.S00'):
-            # S00s.setdefault()
-            # S00 = sqrt(pi/zeta) * exp(-p1.exponent * p2.exponent / zeta * R**2)
+        # S00s.setdefault()
+        # S00 = sqrt(pi/zeta) * exp(-p1.exponent * p2.exponent / zeta * R**2)
         if N1 == 0 and N2 == 0:
             return S00[idx]
 
         # if we are not in the s-s overlap we will create our triangle here
         # we have N1+2 x N2+2 because we need to access the N1, N2 position, which is only calculated if the triangle is large enough
         S = np.zeros((N1+2, N2+2)) - 1
-        visited = np.zeros_like(S)
         S[0, 0] = S00[idx]
         for n1 in range(N1+1):
             for n2 in range(N2+1):
