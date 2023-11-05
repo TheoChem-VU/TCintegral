@@ -3,14 +3,15 @@ from TCutility import results
 import numpy as np
 
 # get a basis set from basis_sets
-bs = basis_set.STO6G
+bs = basis_set.STO2G
     
 # read a molecule to use
 res = results.read(r"../test/fixtures/reactants/benzene")
 mol = res.molecule.output
 
 # get atomic orbitals for this molecule
-orb_to_get = ['1S', '2S', '3S', '1P:x', '1P:y', '1P:z', '2P:x', '2P:y', '2P:z']  # list of possible AOs
+# orb_to_get = ['1S', '2S', '3S', '1P:x', '1P:y', '1P:z', '2P:x', '2P:y', '2P:z']  # list of possible AO
+orb_to_get = ['1P:z']  # list of possible AOs
 aos = []
 for atom in mol:
     for orb_name in orb_to_get:
@@ -45,4 +46,4 @@ energies, coefficients = np.linalg.eigh(H)
 
 for mo_index in range(len(energies)):
     mo = MolecularOrbital(aos, coefficients[:, mo_index], mol)
-    mo.show()
+    mo.screenshot(f'MO_{mo_index}.png')
