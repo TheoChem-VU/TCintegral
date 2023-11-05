@@ -84,6 +84,7 @@ class BasisSet:
         l_index = l - atom_data.lmin
         coeffs = atom_data.coeffs[:, l_index]
         cont = contracted.Contracted(atom_data.exps, np.array(center), index, coeffs)
+        cont.name = f'{atom}({func})'
         cont.atom = atom
         cont.n = n
         cont.l = l
@@ -96,6 +97,12 @@ class BasisSet:
             return True
         except (IndexError, UnboundLocalError):
             return False
+
+
+STO6G = BasisSet(j(os.path.split(__file__)[0], 'basis_sets', 'sto-6g.1.cp2k'))
+STO3G = BasisSet(j(os.path.split(__file__)[0], 'basis_sets', 'sto-3g.1.cp2k'))
+STO2G = BasisSet(j(os.path.split(__file__)[0], 'basis_sets', 'sto-2g.1.cp2k'))
+ccPVDZ = BasisSet(j(os.path.split(__file__)[0], 'basis_sets', 'cc-pvdz.1.cp2k'))
 
 
 if __name__ == '__main__':
