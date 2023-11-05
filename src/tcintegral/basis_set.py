@@ -1,6 +1,5 @@
 from TCutility.results.result import Result
 import numpy as np
-from pprint import pprint
 from tcintegral import contracted
 import os
 import matplotlib.pyplot as plt
@@ -55,40 +54,40 @@ class BasisSet:
         Access basis functions as bs['Xx(nl)'] or bs['Xx', 'nl']
         '''
         # decode the func
-        n = int(func[0])
-        l = l_to_name.index(func[1])
-        ml = func[1:]
-        if ml == 'S':
+        principal = int(func[0])
+        angular = l_to_name.index(func[1])
+        magnetic = func[1:]
+        if magnetic == 'S':
             index = [0, 0, 0]
-        elif ml == 'P:x':
+        elif magnetic == 'P:x':
             index = [1, 0, 0]
-        elif ml == 'P:y':
+        elif magnetic == 'P:y':
             index = [0, 1, 0]
-        elif ml == 'P:z':
+        elif magnetic == 'P:z':
             index = [0, 0, 1]
-        elif ml == 'D:x2':
+        elif magnetic == 'D:x2':
             index = [2, 0, 0]
-        elif ml == 'D:y2':
+        elif magnetic == 'D:y2':
             index = [0, 2, 0]
-        elif ml == 'D:z2':
+        elif magnetic == 'D:z2':
             index = [0, 0, 2]
-        elif ml == 'D:xy':
+        elif magnetic == 'D:xy':
             index = [1, 1, 0]
-        elif ml == 'D:xz':
+        elif magnetic == 'D:xz':
             index = [1, 0, 1]
-        elif ml == 'D:yz':
+        elif magnetic == 'D:yz':
             index = [0, 1, 1]
 
         atom_data = self.bs_data[atom]
-        atom_data = [data for data in atom_data if data.lmin <= l <= data.lmax][n-1]
-        l_index = l - atom_data.lmin
-        coeffs = atom_data.coeffs[:, l_index]
+        atom_data = [data for data in atom_data if data.lmin <= angular <= data.lmax][principal-1]
+        angular_index = angular - atom_data.lmin
+        coeffs = atom_data.coeffs[:, angular_index]
         cont = contracted.Contracted(atom_data.exps, np.array(center), index, coeffs)
         cont.name = f'{atom}({func})'
         cont.atom = atom
-        cont.n = n
-        cont.l = l
-        cont.ml = ml
+        cont.principal = principal
+        cont.angular = angular
+        cont.magnetic = magnetic
         return cont
 
     def __contains__(self, key):

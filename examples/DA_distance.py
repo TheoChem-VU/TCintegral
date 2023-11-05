@@ -1,5 +1,4 @@
 from tcintegral import molecular_orbital
-from yutility import orbitals
 import matplotlib.pyplot as plt
 import numpy as np
 import os
