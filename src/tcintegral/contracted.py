@@ -19,13 +19,19 @@ def get_rotmat(x=0, y=0, z=0):
 
 
 class Contracted:
-    def __init__(self, exponents: list[float], center: list[float], index: list[int], coefficients: list[float]):
+    def __init__(self, exponents: list[float], center: list[float], index: list[int], coefficients: list[float], name=None):
         self.center = np.atleast_1d(center)  # position of the primitive center
         self.exponents = np.atleast_1d(exponents)  # exponent for the gaussian part
         self.index = np.atleast_1d(index)  # indices of the angular part
         self.primitives = [primitive.Primitive(exponent, self.center, self.index) for exponent in self.exponents]
         self.coefficients = np.atleast_1d(coefficients)
         self._norm = None
+        self.name = name
+
+    def __repr__(self):
+        if self.name is not None:
+            return self.name
+        return super().__repr__()
 
     @property
     def ndims(self):
