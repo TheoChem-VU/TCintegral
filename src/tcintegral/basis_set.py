@@ -17,12 +17,9 @@ def cp2k_reader(file):
         lines = inp.readlines()
         lines = [line.strip() for line in lines if line.strip() != '' and not line.startswith('#')]
 
-    # [print(line) for line in lines]
     read = True
     atom_start = 0
     atom_data = Result()
-    # print()
-    # print()
     while read:
         atom = lines[atom_start].split()[0]
         ncontracted = int(lines[atom_start+1])
@@ -35,17 +32,10 @@ def cp2k_reader(file):
             atom_data[atom][n].lmax = int(lmax)
             atom_data[atom][n].Nexp = int(Nexp)
 
-            # atom_data[atom][n].exps = []
-            # atom_data[atom][n].coeffs = []
             data_lines = lines[contracted_start+1:contracted_start+int(Nexp)+1]
-            # print(data_lines)
             data_lines = [[float(x) for x in line.split()] for line in data_lines]
-            # print(data_lines)
             atom_data[atom][n].exps = np.array([line[0] for line in data_lines]).flatten()
             atom_data[atom][n].coeffs = np.atleast_2d([line[1:] for line in data_lines])
-            # print(atom_data[atom][n].exps)
-            # print(atom_data[atom][n].coeffs)
-            # atom_data[atom].append(lines[contracted_start:contracted_start+int(Nexp)+1])
             contracted_start += int(Nexp) + 1
 
         atom_start = contracted_start
