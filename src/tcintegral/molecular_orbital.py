@@ -94,7 +94,7 @@ class MolecularOrbital:
             wf += f(r.T) * coeff
         return wf / sqrt(sum(wf**2))
 
-    def get_cub(self, p=None, cutoff=[.4, .45]):
+    def get_cub(self, p=None, cutoff=[.03, 1]):
         if p is None:
             # x = np.linspace(-6, 6, 80).reshape(-1, 1)
             # y = np.linspace(-6, 6, 80).reshape(-1, 1)
@@ -103,13 +103,17 @@ class MolecularOrbital:
             # p = np.meshgrid(x, y, z)
             # p = [r_.flatten() for r_ in p]
             # p = np.vstack(p).T
-            p = grid.from_molecule(self.molecule, atom_scale=5).points
+            p = grid.from_molecule(self.molecule, atom_scale=5, spacing=.4).points
         wf = self(p)
         wf_abs = abs(wf)/np.max(abs(wf))
-        # idx = np.where(np.logical_and(wf_abs > cutoff[0], wf_abs < cutoff[1]))[0]
-        idx = np.arange(len(wf_abs))
-        COL1 = np.array((255, 0, 0)) if self.occupied else np.array((255, 165, 0))
-        COL2 = np.array((0, 0, 255)) if self.occupied else np.array((0, 255, 255))
+        idx = np.where(np.logical_and(wf_abs > cutoff[0], wf_abs < cutoff[1]))[0]
+        # idx = np.arange(len(wf_abs))
+        try:
+            COL1 = np.array((255, 0, 0)) if self.occupied else np.array((255, 165, 0))
+            COL2 = np.array((0, 0, 255)) if self.occupied else np.array((0, 255, 255))
+        except AttributeError:
+            COL1 = np.array((255, 0, 0))
+            COL2 = np.array((0, 0, 255))
         return [p[idx], np.where(wf[idx] > 0, 0, 1).reshape(-1, 1) * COL1 + np.where(wf[idx] < 0, 0, 1).reshape(-1, 1) * COL2]
 
     def show(self, p=None):
