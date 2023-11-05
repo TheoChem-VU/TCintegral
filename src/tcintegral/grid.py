@@ -3,6 +3,7 @@ from listfunc import ensure_list
 from collections.abc import Iterable
 from math import ceil, floor
 from yutility import atom_data
+import matplotlib.pyplot as plt
 
 
 class Grid:
@@ -100,7 +101,7 @@ class Grid:
 
     def show(self, **kwargs):
         if self.ndims == 2:
-            plt.scatter(grid.points[:, 0], grid.points[:, 1])
+            plt.scatter(self.points[:, 0], self.points[:, 1])
             plt.show()
             return
 
