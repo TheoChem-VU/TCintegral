@@ -94,7 +94,7 @@ class MolecularOrbital:
             wf += f(r.T) * coeff
         return wf / sqrt(sum(wf**2))
 
-    def get_cub(self, p=None, cutoff=[.03, 1]):
+    def get_cub(self, p=None, cutoff=[.003, 1]):
         if p is None:
             # x = np.linspace(-6, 6, 80).reshape(-1, 1)
             # y = np.linspace(-6, 6, 80).reshape(-1, 1)
@@ -103,9 +103,9 @@ class MolecularOrbital:
             # p = np.meshgrid(x, y, z)
             # p = [r_.flatten() for r_ in p]
             # p = np.vstack(p).T
-            p = grid.from_molecule(self.molecule, atom_scale=5, spacing=.4).points
+            p = grid.from_molecule(self.molecule, atom_scale=5, spacing=.1).points
         wf = self(p)
-        wf_abs = abs(wf)/np.max(abs(wf))
+        wf_abs = abs(wf)
         idx = np.where(np.logical_and(wf_abs > cutoff[0], wf_abs < cutoff[1]))[0]
         # idx = np.arange(len(wf_abs))
         try:
@@ -118,6 +118,9 @@ class MolecularOrbital:
 
     def show(self, p=None):
         viewer.show(self.molecule, molinfo=[{'cub': self.get_cub(p)}])
+
+    def screenshot(self, file, p=None):
+        viewer.screen_shot_mols(self.molecule, [file], molinfo=[{'cub': self.get_cub(p)}])
 
     def translate(self, trans):
         for f in self.basis_functions:
