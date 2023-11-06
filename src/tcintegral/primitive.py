@@ -15,7 +15,7 @@ def double_factorial(n):
 class Primitive:
     def __init__(self, exponent: float, center: list[float], index: list[int]):
         self.exponent = exponent  # exponent for the gaussian part
-        self.center = np.atleast_1d(center)*0.52918  # position of the primitive center converted from Angstrom to Bohr
+        self.center = np.atleast_1d(center)  # position of the primitive center converted from Angstrom to Bohr
         self.index = np.atleast_1d(index)  # indices of the angular part
         self._norm = None
 
@@ -52,55 +52,50 @@ class Primitive:
             wf *= ang * rad
         return wf * self.norm
 
-    # @timer.Time
     def overlap(self, other: 'Primitive'):
-        return _overlap(self, other)
+        '''
+        Calculate the overlap between this and another primitive using the Obara-Saika recurrence relations for overlap integrals
+        '''
+        assert self.ndims == other.ndims
 
+        with timer.Timer('Primitive.overlap.prepare'):
+            # define some usefull constants
+            zeta = self.exponent + other.exponent
+            # xi = self.exponent * other.exponent / zeta
+            c1 = self.center * 0.529177
+            c2 = other.center * 0.529177
+            P = (self.exponent * c1 + other.exponent * c2)/zeta
+            dPA = P - c1
+            dPB = P - c2
 
-# S00s = {}
+            S00 = sqrt(pi/zeta) * np.exp(-self.exponent * other.exponent / zeta * (c1 - c2)**2)
 
-def _overlap(p1: Primitive, p2: Primitive):
-    '''
-    Calculate the overlap between two primitives p1 and p2 using the Obara-Saika recurrence relations for overlap integrals
-    '''
-    assert p1.ndims == p2.ndims
+        def obara_saika(N1, N2, idx):
+            # first calculate the s-s overlap, this will be the first entry in our recurrence relations
+            # with timer.Timer('_overlap.obara_saika.S00'):
+            # S00s.setdefault()
+            # S00 = sqrt(pi/zeta) * exp(-self.exponent * other.exponent / zeta * R**2)
+            if N1 == 0 and N2 == 0:
+                return S00[idx]
 
-    with timer.Timer('Primitive.overlap.prepare'):
-        # define some usefull constants
-        zeta = p1.exponent + p2.exponent
-        # xi = p1.exponent * p2.exponent / zeta
-        P = (p1.exponent * p1.center + p2.exponent * p2.center)/zeta
-        dPA = P - p1.center
-        dPB = P - p2.center
+            # if we are not in the s-s overlap we will create our triangle here
+            # we have N1+2 x N2+2 because we need to access the N1, N2 position, which is only calculated if the triangle is large enough
+            S = np.zeros((N1+2, N2+2)) - 1
+            S[0, 0] = S00[idx]
+            for n1 in range(N1+1):
+                for n2 in range(N2+1):
+                    # use the recurrence relations, this is recalculating some values, but the operations are very cheap so it does not matter
+                    common = (n1 * S[n1-1, n2] + n2 * S[n1, n2-1])/(2*zeta)
+                    S[n1+1, n2] = dPA[idx] * S[n1, n2] + common
+                    S[n1, n2+1] = dPB[idx] * S[n1, n2] + common
+            return S[N1, N2]
 
-        S00 = sqrt(pi/zeta) * np.exp(-p1.exponent * p2.exponent / zeta * (p1.center - p2.center)**2)
-
-    def obara_saika(N1, N2, idx):
-        # first calculate the s-s overlap, this will be the first entry in our recurrence relations
-        # with timer.Timer('_overlap.obara_saika.S00'):
-        # S00s.setdefault()
-        # S00 = sqrt(pi/zeta) * exp(-p1.exponent * p2.exponent / zeta * R**2)
-        if N1 == 0 and N2 == 0:
-            return S00[idx]
-
-        # if we are not in the s-s overlap we will create our triangle here
-        # we have N1+2 x N2+2 because we need to access the N1, N2 position, which is only calculated if the triangle is large enough
-        S = np.zeros((N1+2, N2+2)) - 1
-        S[0, 0] = S00[idx]
-        for n1 in range(N1+1):
-            for n2 in range(N2+1):
-                # use the recurrence relations, this is recalculating some values, but the operations are very cheap so it does not matter
-                common = (n1 * S[n1-1, n2] + n2 * S[n1, n2-1])/(2*zeta)
-                S[n1+1, n2] = dPA[idx] * S[n1, n2] + common
-                S[n1, n2+1] = dPB[idx] * S[n1, n2] + common
-        return S[N1, N2]
-
-    # total overlap is the product of all one-dimensional overlaps
-    overlap = p1.norm * p2.norm  # normalization constants include all dimensions, so we include them one time
-    for i in range(p1.ndims):
-        with timer.Timer('Primitive.overlap.obara_saika'):
-            overlap *= obara_saika(p1.index[i], p2.index[i], i)
-    return overlap
+        # total overlap is the product of all one-dimensional overlaps
+        overlap = self.norm * other.norm  # normalization constants include all dimensions, so we include them one time
+        for i in range(self.ndims):
+            with timer.Timer('Primitive.overlap.obara_saika'):
+                overlap *= obara_saika(self.index[i], other.index[i], i)
+        return overlap
 
 
 if __name__ == '__main__':
