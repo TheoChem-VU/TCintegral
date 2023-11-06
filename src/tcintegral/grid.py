@@ -34,7 +34,7 @@ class Grid:
         spacing = self.spacing
         if len(spacing) == 1 and len(spacing) != self.ndims:
             spacing = spacing * self.ndims
-        return self.indices * spacing + self.origin
+        return self.indices * spacing
 
     @property
     def extent(self):
