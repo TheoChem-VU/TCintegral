@@ -54,10 +54,10 @@ class Grid:
             ma = max(extent_[i][1] for extent_ in extents)
             # we are interested in the index locations
             extent.append((floor(mi/spacing[i]), ceil(ma/spacing[i])))
-        
+
         # generate axes, indices and point coordinates
         axes = [np.arange(ex[0], ex[1]+1) for ex in extent]
-        meshed_axes = np.meshgrid(*axes)
+        meshed_axes = np.meshgrid(*axes, indexing='ij')
         meshed_axes = [axis.flatten() for axis in meshed_axes]
         indices = np.vstack(meshed_axes).T
         points = indices * spacing
