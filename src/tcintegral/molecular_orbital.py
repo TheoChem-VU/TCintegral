@@ -26,7 +26,7 @@ def get_rotmat(x=0, y=0, z=0):
 def get(rkf_file, orb_name, bs_file=r"basis_sets/sto-2g.1.cp2k"):
     bs = basis_set.BasisSet(bs_file)
     orbs = orbitals.Orbitals(rkf_file)
-    xyz = np.array(orbs.reader.read('Geometry', 'xyz')).reshape(-1, 3) * 0.529177
+    xyz = np.array(orbs.reader.read('Geometry', 'xyz')).reshape(-1, 3)
     nats = xyz.shape[0]
     atom_type_index = orbs.reader.read('Geometry', 'fragment and atomtype index')[nats:]
     ats = [orbs.reader.read('Geometry', 'atomtype').split()[i-1] for i in atom_type_index]
@@ -91,7 +91,7 @@ class MolecularOrbital:
         wf = np.zeros(r.shape[0])
         for f, coeff in zip(self.basis_functions, self.coefficients):
             wf += f(r.T) * coeff
-        return wf / sqrt(sum(wf**2))
+        return wf * self.norm
 
     def get_cub(self, p=None, cutoff=[.003, 1]):
         if p is None:
