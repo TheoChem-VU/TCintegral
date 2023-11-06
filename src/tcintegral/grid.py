@@ -77,6 +77,11 @@ class Grid:
     def ndims(self):
         return len(self.origin)
 
+    @property
+    def shape(self):
+        self.set_points()
+        return np.max(self.indices, axis=0) - np.min(self.indices, axis=0) + 1
+
     def __sub__(self, other):
         if isinstance(other, Grid):
             self.sub_grids.append(('-', other))
