@@ -68,7 +68,8 @@ class Grid:
             if sign == '-':
                 to_keep = np.logical_and(to_keep, 1-grid.__contains__(points))
         self.indices = indices[to_keep]
-        self.values = np.zeros(len(self.indices))
+        if self.values is None:
+            self.values = np.zeros(len(self.indices))
 
     def set_colors(self, func):
         self.colors = func(self.values)
