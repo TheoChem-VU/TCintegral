@@ -43,7 +43,7 @@ for i, ao1 in enumerate(aos):
 
 # get MO energies and coeffs
 energies, coefficients = np.linalg.eigh(H)
-
+print([e*27.211324570273 for e in energies])
 for mo_index in range(len(energies)):
     mo = MolecularOrbital(aos, coefficients[:, mo_index], mol)
     mo.screenshot(f'MO_{mo_index}.png')
