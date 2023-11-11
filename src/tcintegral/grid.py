@@ -4,6 +4,7 @@ from collections.abc import Iterable
 from math import ceil, floor
 from yutility import atom_data
 import matplotlib.pyplot as plt
+from scm import plams
 
 
 class Grid:
@@ -229,3 +230,41 @@ def molecule_bounding_box(mol, margin=4, spacing=.5):
     g = Grid(spacing)
     g += Cube((lower_corner - margin).tolist(), (top_corner - lower_corner + margin * 2).tolist())
     return g
+
+
+def from_cub_file(file):
+    with open(file) as cub:
+        lines = [line.strip() for line in cub.readlines()]
+
+    natoms, origin = int(lines[2].split()[0]), np.array(lines[2].split()[1:]).astype(float) * 0.52918
+    xvec, yvec, zvec = np.array([line.split()[1:] for line in lines[3:6]]).astype(float) * 0.52918
+    xn, yn, zn = np.array([line.split()[0] for line in lines[3:6]]).astype(int)
+    
+    values = []
+    for line in lines[6+natoms:]:
+        values.extend(line.split())
+    values = np.array(values).astype(float)
+
+    gridd = Grid(sum([xvec, yvec, zvec]).tolist())
+    gridd += Cube(origin.tolist(), sum([xvec*xn, yvec*yn, zvec*zn]).tolist())
+    gridd.values = values
+
+    atomcoords = []
+    atnums = []
+    for line in lines[6:6+natoms]:
+        atomcoords.append(np.array(line.split()[2:]).astype(float) * 0.52918)
+        atnums.append(int(line.split()[0]))
+    mol = plams.Molecule()
+    for atnum, atcoord in zip(self.atomnumbers, self.atomcoords):
+        mol.add_atom(plams.Atom(atnum=atnum, coords=atcoord))
+    mol.guess_bonds()
+
+    gridd.molecule = mol
+
+    return gridd
+
+
+
+if __name__ == '__main__':
+    gridd = from_cub_file('/Users/yumanhordijk/PhD/TCviewer/test/fixtures/NH3BH3/9%SCF_A%9.cub')
+    print(gridd)
