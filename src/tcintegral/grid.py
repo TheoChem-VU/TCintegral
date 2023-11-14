@@ -255,7 +255,7 @@ def from_cub_file(file):
         atomcoords.append(np.array(line.split()[2:]).astype(float) * 0.52918)
         atnums.append(int(line.split()[0]))
     mol = plams.Molecule()
-    for atnum, atcoord in zip(self.atomnumbers, self.atomcoords):
+    for atnum, atcoord in zip(atnums, atomcoords):
         mol.add_atom(plams.Atom(atnum=atnum, coords=atcoord))
     mol.guess_bonds()
 
