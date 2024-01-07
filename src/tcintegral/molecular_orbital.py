@@ -26,7 +26,7 @@ def get_rotmat(x=0, y=0, z=0):
 def get(rkf_file, orb_name, bs_file=r"basis_sets/sto-2g.1.cp2k"):
     bs = basis_set.BasisSet(bs_file)
     orbs = orbitals.Orbitals(rkf_file)
-    xyz = np.array(orbs.reader.read('Geometry', 'xyz')).reshape(-1, 3)
+    xyz = np.array(orbs.reader.read('Geometry', 'xyz')).reshape(-1, 3) * 0.529177
     nats = xyz.shape[0]
     atom_type_index = orbs.reader.read('Geometry', 'fragment and atomtype index')[nats:]
     ats = [orbs.reader.read('Geometry', 'atomtype').split()[i-1] for i in atom_type_index]
@@ -91,7 +91,7 @@ class MolecularOrbital:
         wf = np.zeros(r.shape[0])
         for f, coeff in zip(self.basis_functions, self.coefficients):
             wf += f(r.T) * coeff
-        return wf * self.norm
+        return wf / sqrt(sum(wf**2))
 
     def get_cub(self, p=None, cutoff=[.003, 1]):
         if p is None:
@@ -139,7 +139,7 @@ class MolecularOrbital:
         for f, coeff in zip(self.basis_functions, self.coefficients):
             f.rotate(R)
             like_fs = f_by_atom_and_angular[f.fragment_unique_name][f.angular]
-            like_fs = [f_ for f_ in like_fs if f_.n == f.n]
+            like_fs = [f_ for f_ in like_fs if f_.principal == f.principal]
             if f.angular == 0:  # we dont have to rotate s-orbitals
                 new_coeffs.append(coeff)
                 continue
@@ -191,6 +191,7 @@ class MolecularOrbital:
 
 
 if __name__ == '__main__':
+    from tcviewer import Screen
     # overlaps = []
     # ds = []
     # for d in os.listdir(r"../../test/fixtures/reactants/MeMe_ADF_distance"):
@@ -212,6 +213,17 @@ if __name__ == '__main__':
         mo1.rotate(y=np.pi/2)
         mo1.translate([d, 0, 1])
         mo2 = get(r"../../test/fixtures/reactants/butadiene/go.results/adf.rkf", 'LUMO', bs_file=r"basis_sets/cc-pvdz.1.cp2k")
+
+        with Screen() as scr:
+            gridd1 = grid.molecule_bounding_box(mo1.molecule + mo2.molecule)
+            gridd2 = grid.molecule_bounding_box(mo1.molecule + mo2.molecule)
+            gridd1.values = mo1(gridd1.points)
+            gridd2.values = mo2(gridd2.points)
+            scr.draw_isosurface(gridd1)
+            scr.draw_isosurface(gridd2)
+
+        exit()
+
         overlaps.append(mo1.overlap(mo2)*100)
     plt.plot(ds, overlaps, label='Exact (cc-PVDZ)')
     ds = np.linspace(0, 6, 34)
