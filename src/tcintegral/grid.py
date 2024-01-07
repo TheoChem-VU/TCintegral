@@ -5,6 +5,7 @@ from math import ceil, floor
 from yutility import atom_data
 import matplotlib.pyplot as plt
 from scm import plams
+import copy
 
 
 class Grid:
@@ -154,6 +155,9 @@ class Grid:
                 self.indices = None
                 screen.draw_pixels(points, self.colors)
                 screen.update()
+
+    def copy(self):
+        return copy.deepcopy(self)
 
 
 class Cube(Grid):
