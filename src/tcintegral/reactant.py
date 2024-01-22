@@ -1,4 +1,4 @@
-from TCutility import results
+from tcutility import results
 from yutility import geometry, orbitals, ensure_list, timer
 import numpy as np
 from yviewer import viewer
