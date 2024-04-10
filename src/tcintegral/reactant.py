@@ -2,7 +2,7 @@ from tcutility import results, geometry, ensure_list
 import pyfmo
 # from yutility import geometry, orbitals, ensure_list, timer
 import numpy as np
-from yviewer import viewer
+# from yviewer import viewer
 import os
 from tcintegral import molecular_orbital
 from math import cos, sin
@@ -66,18 +66,18 @@ class Reactant:
             orb.moleculename = self.moleculename
             self.mos.append(orb)
 
-    def show(self, p=None):
-        if p is None:
-            x = np.linspace(-6, 6, 50).reshape(-1, 1)
-            y = np.linspace(-6, 6, 50).reshape(-1, 1)
-            z = np.linspace(-6, 6, 50).reshape(-1, 1)
+    # def show(self, p=None):
+    #     if p is None:
+    #         x = np.linspace(-6, 6, 50).reshape(-1, 1)
+    #         y = np.linspace(-6, 6, 50).reshape(-1, 1)
+    #         z = np.linspace(-6, 6, 50).reshape(-1, 1)
 
-            p = np.meshgrid(x, y, z)
-            p = [r_.flatten() for r_ in p]
-            p = np.vstack(p).T
+    #         p = np.meshgrid(x, y, z)
+    #         p = [r_.flatten() for r_ in p]
+    #         p = np.vstack(p).T
 
-        nmos = len(self.mos)
-        viewer.show([self.mol] * nmos, molinfo=[{'cub': mo.get_cub(p)} for mo in self.mos])
+    #     nmos = len(self.mos)
+    #     viewer.show([self.mol] * nmos, molinfo=[{'cub': mo.get_cub(p)} for mo in self.mos])
 
     # @timer.time
     def overlap(self, other: 'Reactant'):
