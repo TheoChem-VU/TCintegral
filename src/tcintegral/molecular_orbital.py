@@ -1,8 +1,9 @@
-from yutility import orbitals, timer
+# from yutility import orbitals, timer
+import pyfmo
 from tcintegral import basis_set, grid
 from scm import plams
 import numpy as np
-from yviewer import viewer
+# from yviewer import viewer
 from math import sqrt, cos, sin
 import matplotlib.pyplot as plt
 import os
@@ -25,7 +26,7 @@ def get_rotmat(x=0, y=0, z=0):
 
 def get(rkf_file, orb_name, bs_file=r"basis_sets/sto-2g.1.cp2k"):
     bs = basis_set.BasisSet(bs_file)
-    orbs = orbitals.Orbitals(rkf_file)
+    orbs = pyfmo.orbitals.Orbitals(rkf_file)
     xyz = np.array(orbs.reader.read('Geometry', 'xyz')).reshape(-1, 3) * 0.529177
     nats = xyz.shape[0]
     atom_type_index = orbs.reader.read('Geometry', 'fragment and atomtype index')[nats:]
@@ -115,11 +116,11 @@ class MolecularOrbital:
             COL2 = np.array((0, 0, 255))
         return [p[idx], np.where(wf[idx] > 0, 0, 1).reshape(-1, 1) * COL1 + np.where(wf[idx] < 0, 0, 1).reshape(-1, 1) * COL2]
 
-    def show(self, p=None):
-        viewer.show(self.molecule, molinfo=[{'cub': self.get_cub(p)}])
+    # def show(self, p=None):
+    #     viewer.show(self.molecule, molinfo=[{'cub': self.get_cub(p)}])
 
-    def screenshot(self, file, p=None):
-        viewer.screen_shot_mols(self.molecule, [file], molinfo=[{'cub': self.get_cub(p)}])
+    # def screenshot(self, file, p=None):
+    #     viewer.screen_shot_mols(self.molecule, [file], molinfo=[{'cub': self.get_cub(p)}])
 
     def translate(self, trans):
         for f in self.basis_functions:
@@ -153,7 +154,7 @@ class MolecularOrbital:
         self.coefficients = new_coeffs
 
     @property
-    @timer.Time
+    # @timer.Time
     def norm(self):
         '''The overlap integral of this contracted basis function with itself should be 1
         '''
@@ -165,7 +166,7 @@ class MolecularOrbital:
             self._norm = 1/sqrt(S)
         return self._norm
 
-    @timer.Time
+    # @timer.Time
     def overlap(self, other: 'MolecularOrbital', method='exact'):
         if method == 'exact':
             S = 0

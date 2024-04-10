@@ -1,5 +1,6 @@
-from tcutility import results
-from yutility import geometry, orbitals, ensure_list, timer
+from tcutility import results, geometry, ensure_list
+import pyfmo
+# from yutility import geometry, orbitals, ensure_list, timer
 import numpy as np
 from yviewer import viewer
 import os
@@ -32,7 +33,7 @@ class Reactant:
         self.mol = self.rkf_res.molecule.input
         self.loaded_wfs = []
         self.transform = geometry.Transform()
-        self._orbitals = orbitals.Orbitals(self.rkf_res.files['adf.rkf'])
+        self._orbitals = pyfmo.orbitals.Orbitals(self.rkf_res.files['adf.rkf'])
         self.mos = []
         self.bs_file = bs_file
         # self.mos = [molecular_orbital.get(self.rkf_res.files['adf.rkf'], mo.name, bs_file) for mo in self._orbitals.mos]
@@ -90,17 +91,17 @@ class Reactant:
 
 
 if __name__ == '__main__':
-    with timer.Timer('Load reactants'):
-        rct1 = Reactant(r"/Users/yumanhordijk/PhD/fast_EDA/calculations/butadiene")
-        rct2 = Reactant(r"/Users/yumanhordijk/PhD/fast_EDA/calculations/ethene")
-        rct1.load_mos('HOMO-4', 'LUMO+4')
-        rct2.load_mos('HOMO-4', 'LUMO+4')
+    # with timer.Timer('Load reactants'):
+    rct1 = Reactant(r"/Users/yumanhordijk/PhD/fast_EDA/calculations/butadiene")
+    rct2 = Reactant(r"/Users/yumanhordijk/PhD/fast_EDA/calculations/ethene")
+    rct1.load_mos('HOMO-4', 'LUMO+4')
+    rct2.load_mos('HOMO-4', 'LUMO+4')
 
     # rct1.load_mos('LUMO+1')
     # rct2.load_mos('HOMO')
-    with timer.Timer('Place reactants'):
-        rct2.rotate(y=np.pi/2)
-        rct2.translate([3, 0, 0])
+    # with timer.Timer('Place reactants'):
+    rct2.rotate(y=np.pi/2)
+    rct2.translate([3, 0, 0])
 
     # print(rct1.overlap(rct2))
 
