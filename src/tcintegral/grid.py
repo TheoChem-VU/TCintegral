@@ -2,8 +2,8 @@ import numpy as np
 from listfunc import ensure_list
 from collections.abc import Iterable
 from math import ceil, floor
-from yutility import atom_data
 import matplotlib.pyplot as plt
+from tcutility import data
 from scm import plams
 import copy
 
@@ -228,7 +228,7 @@ class Sphere(Grid):
 def from_molecule(mol, spacing=.5, atom_scale=1):
     grid = Grid(spacing)
     for atom in mol:
-        rad = atom_data.radius(atom.symbol)
+        rad = data.atom.radius(atom.symbol)
         grid += Sphere(atom.coords, rad*atom_scale)
     return grid
 

@@ -1,7 +1,7 @@
 import numpy as np
 from math import sqrt
 from tcintegral import primitive
-from yutility import timer
+# from yutility import timer
 from math import cos, sin
 
 
@@ -38,7 +38,7 @@ class Contracted:
         return self.center.size
 
     @property
-    @timer.Time
+    # @timer.Time
     def norm(self):
         '''The overlap integral of this contracted basis function with itself should be 1
         '''
@@ -73,7 +73,7 @@ class Contracted:
         COL2 = np.array((0, 0, 255)) 
         return [p[idx], np.where(wf[idx] > 0, 0, 1).reshape(-1, 1) * COL1 + np.where(wf[idx] < 0, 0, 1).reshape(-1, 1) * COL2]
 
-    @timer.Time
+    # @timer.Time
     def overlap(self, other: 'Contracted'):
         S = 0
         for coeff1, prim1 in zip(self.coefficients, self.primitives):

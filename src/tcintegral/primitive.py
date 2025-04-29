@@ -1,6 +1,6 @@
 import numpy as np
 from math import pi, sqrt
-from yutility import timer
+# from yutility import timer
 
 
 def double_factorial(n):
@@ -24,7 +24,7 @@ class Primitive:
         return self.center.size
 
     @property
-    @timer.Time
+    # @timer.Time
     def norm(self):
         r'''Calculate the normalization constant N for this primitive.
         Recall that we have to calculate the square integral of this primitive:
@@ -58,17 +58,17 @@ class Primitive:
         '''
         assert self.ndims == other.ndims
 
-        with timer.Timer('Primitive.overlap.prepare'):
+        # with timer.Timer('Primitive.overlap.prepare'):
             # define some usefull constants
-            zeta = self.exponent + other.exponent
-            # xi = self.exponent * other.exponent / zeta
-            c1 = self.center
-            c2 = other.center
-            P = (self.exponent * c1 + other.exponent * c2)/zeta
-            dPA = P - c1
-            dPB = P - c2
+        zeta = self.exponent + other.exponent
+        # xi = self.exponent * other.exponent / zeta
+        c1 = self.center
+        c2 = other.center
+        P = (self.exponent * c1 + other.exponent * c2)/zeta
+        dPA = P - c1
+        dPB = P - c2
 
-            S00 = sqrt(pi/zeta) * np.exp(-self.exponent * other.exponent / zeta * (c1 - c2)**2)
+        S00 = sqrt(pi/zeta) * np.exp(-self.exponent * other.exponent / zeta * (c1 - c2)**2)
 
         def obara_saika(N1, N2, idx):
             # first calculate the s-s overlap, this will be the first entry in our recurrence relations
@@ -93,8 +93,8 @@ class Primitive:
         # total overlap is the product of all one-dimensional overlaps
         overlap = self.norm * other.norm  # normalization constants include all dimensions, so we include them one time
         for i in range(self.ndims):
-            with timer.Timer('Primitive.overlap.obara_saika'):
-                overlap *= obara_saika(self.index[i], other.index[i], i)
+            # with timer.Timer('Primitive.overlap.obara_saika'):
+            overlap *= obara_saika(self.index[i], other.index[i], i)
         return overlap
 
 
