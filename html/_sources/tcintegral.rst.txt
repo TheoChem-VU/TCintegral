@@ -1,0 +1,77 @@
+tcintegral package
+==================
+
+Submodules
+----------
+
+tcintegral.basis\_set module
+----------------------------
+
+.. automodule:: tcintegral.basis_set
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+tcintegral.contracted module
+----------------------------
+
+.. automodule:: tcintegral.contracted
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+tcintegral.grid module
+----------------------
+
+.. automodule:: tcintegral.grid
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+tcintegral.integrals module
+---------------------------
+
+.. automodule:: tcintegral.integrals
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+tcintegral.molecular\_orbital module
+------------------------------------
+
+.. automodule:: tcintegral.molecular_orbital
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+tcintegral.overlap\_matrix module
+---------------------------------
+
+.. automodule:: tcintegral.overlap_matrix
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+tcintegral.primitive module
+---------------------------
+
+.. automodule:: tcintegral.primitive
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+tcintegral.reactant module
+--------------------------
+
+.. automodule:: tcintegral.reactant
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: tcintegral
+   :members:
+   :show-inheritance:
+   :undoc-members:
