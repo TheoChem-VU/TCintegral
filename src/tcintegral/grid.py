@@ -25,11 +25,15 @@ class Grid:
         self.cutoff_indices = None
         self.values = None
         self.colors = None
+        self._points = None
 
         self.sub_grids = []
 
     @property
     def points(self):
+        if self._points is not None:
+            return self._points
+            
         if self.indices is None:
             self.set_points()
 
@@ -40,7 +44,20 @@ class Grid:
 
     @property
     def extent(self):
-        return [(x, x) for x in self.origin]
+        spacing = self.spacing
+        if len(spacing) == 1 and len(spacing) != self.ndims:
+            spacing = spacing * self.ndims
+
+        extents = [[(x, x) for x in self.origin]] + [sub_grid[1].extent for sub_grid in self.sub_grids]
+        extent = []
+        for i in range(self.ndims):
+            # print(i, extents)
+            mi = min(extent_[i][0] for extent_ in extents)
+            ma = max(extent_[i][1] for extent_ in extents)
+            # we are interested in the index locations
+            extent.append((mi/spacing[i], ma/spacing[i]))
+        # return [(x, x) for x in self.origin]
+        return extent
 
     def set_points(self):
         # make sure spacing is the correct dimension
@@ -48,17 +65,8 @@ class Grid:
         if len(spacing) == 1 and len(spacing) != self.ndims:
             spacing = spacing * self.ndims
 
-        # gather extents, this will be the maximum gridpoint sampling area
-        extents = [self.extent] + [sub_grid[1].extent for sub_grid in self.sub_grids]
-        extent = []
-        for i in range(self.ndims):
-            mi = min(extent_[i][0] for extent_ in extents)
-            ma = max(extent_[i][1] for extent_ in extents)
-            # we are interested in the index locations
-            extent.append((floor(mi/spacing[i]), ceil(ma/spacing[i])))
-
         # generate axes, indices and point coordinates
-        axes = [np.arange(ex[0], ex[1]+1) for ex in extent]
+        axes = [np.arange(floor(ex[0]), ceil(ex[1]+1)) for ex in self.extent]
         meshed_axes = np.meshgrid(*axes, indexing='ij')
         meshed_axes = [axis.flatten() for axis in meshed_axes]
         indices = np.vstack(meshed_axes).T
@@ -69,6 +77,7 @@ class Grid:
                 to_keep = np.logical_or(to_keep, grid.__contains__(points))
             if sign == '-':
                 to_keep = np.logical_and(to_keep, 1-grid.__contains__(points))
+
         self.indices = indices[to_keep]
         if self.values is None:
             self.values = np.zeros(len(self.indices))
@@ -82,6 +91,9 @@ class Grid:
 
     @property
     def shape(self):
+        if hasattr(self, '_shape'):
+            return self._shape
+            
         self.set_points()
         return np.max(self.indices, axis=0) - np.min(self.indices, axis=0) + 1
 
@@ -107,57 +119,50 @@ class Grid:
             values = abs(values)
         self.cutoff_indices = np.where(values > val)
 
-    def show(self, **kwargs):
-        if self.ndims == 2:
-            plt.scatter(self.points[:, 0], self.points[:, 1])
-            plt.show()
-            return
-
-        if self.ndims == 3:
-            import yviewer2
-            from yutility import geometry
-
-            screen = yviewer2.Screen
-            screen.settings.use_3d = True
-            screen.settings.camera_pos = [0, 0, -10]
-            loop = yviewer2.MainLoop
-
-            points = self.points
-            rot = [0, 0]
-            trans = [0, 0]
-            zoom = 0
-            while loop.runs():
-                rot = (rot[0]*.95, rot[1]*.95)
-                trans = (trans[0]*.95, trans[1]*.95)
-                zoom = zoom*.75
-                if yviewer2.inputs.mouse.left.hold:
-                    screen.clear()
-                    rot = -yviewer2.inputs.mouse.dy/200, yviewer2.inputs.mouse.dx/200
-
-                if yviewer2.inputs.mouse.right.hold:
-                    screen.clear()
-                    trans = (-yviewer2.inputs.mouse.dx/100, -yviewer2.inputs.mouse.dy/100)
-
-                if yviewer2.inputs.mouse.scrollup:
-                    screen.clear()
-                    zoom = .25
-                if yviewer2.inputs.mouse.scrolldown:
-                    screen.clear()
-                    zoom = -.25
-
-                screen.settings.camera_pos[0] += trans[0]
-                screen.settings.camera_pos[1] += trans[1]
-                screen.settings.camera_pos[2] += zoom
-
-                R = geometry.get_rotation_matrix(x=rot[0], y=rot[1])
-                points = points @ R
-                screen.clear()
-                self.indices = None
-                screen.draw_pixels(points, self.colors)
-                screen.update()
-
     def copy(self):
         return copy.deepcopy(self)
+
+    def interpolate(self, p):
+        p = np.atleast_3d(p)
+        closest = self.points.T - p
+        # print(closest.shape)
+        closest[closest > 0] = -np.inf
+        closest_idx = np.argmax(np.sum(closest, axis=1), axis=1)
+
+        index_position = (p - self.origin) / self.spacing
+        indices = index_position.astype(int)
+        xd = index_position - indices
+
+        C = np.zeros((2, 2, 2, p.shape[1]))
+        for i in range(2):
+            for j in range(2):
+                for k in range(2):
+                    displacement = np.array([i, j, k])
+                    target = self.indices[closest_idx] + displacement
+                    print((np.atleast_3d(target) - self.points.T).shape)
+                    print(np.where((np.atleast_3d(target) - self.points.T) == 0))
+                    # print(np.equal(self.indices, target))
+                    print((self.indices == target))
+                    # index = np.where(self.indices == target)[0]
+                    index = np.where((np.atleast_3d(target) - self.points.T) == 0)[1]
+                    print(index.shape)
+                    C[i, j, k, :] = self.values[index]
+
+        C_bi = np.array([[
+             C[0, 0, 0, :] * (1 - xd[0]) + C[1, 0, 0, :] * xd[0],
+             C[0, 0, 1, :] * (1 - xd[0]) + C[1, 0, 1, :] * xd[0],],
+            [C[0, 1, 0, :] * (1 - xd[0]) + C[1, 1, 0, :] * xd[0],
+             C[0, 1, 1, :] * (1 - xd[0]) + C[1, 1, 1, :] * xd[0],
+            ]])
+
+        C_tri = [
+            C_bi[0, 0, :] * (1 - xd[1]) + C_bi[1, 0, :] * xd[1],
+            C_bi[0, 1, :] * (1 - xd[1]) + C_bi[1, 1, :] * xd[1],
+        ]
+
+        c = C_tri[0, :] * (1 - xd[2]) + C_tri[1, :] * xd[2]
+
+        return c
 
 
 class Cube(Grid):
@@ -240,7 +245,7 @@ def from_cub_file(file):
     with open(file) as cub:
         lines = [line.strip() for line in cub.readlines()]
 
-    natoms, origin = int(lines[2].split()[0]), np.array(lines[2].split()[1:]).astype(float) * 0.52918
+    natoms, origin = abs(int(lines[2].split()[0])), np.array(lines[2].split()[1:]).astype(float) * 0.52918
     xvec, yvec, zvec = np.array([line.split()[1:] for line in lines[3:6]]).astype(float) * 0.52918
     xn, yn, zn = np.array([line.split()[0] for line in lines[3:6]]).astype(int)
     
@@ -252,6 +257,7 @@ def from_cub_file(file):
     gridd = Grid(sum([xvec, yvec, zvec]).tolist())
     gridd += Cube(origin.tolist(), sum([xvec*xn, yvec*yn, zvec*zn]).tolist())
     gridd.values = values
+    gridd._shape = (xn, yn, zn)
 
     atomcoords = []
     atnums = []
@@ -270,5 +276,35 @@ def from_cub_file(file):
 
 
 if __name__ == '__main__':
-    gridd = from_cub_file('/Users/yumanhordijk/PhD/TCviewer/test/fixtures/NH3BH3/9%SCF_A%9.cub')
-    print(gridd)
+    from tcviewer import Screen, materials
+    gridd = from_cub_file('/Users/yumanhordijk/PhD/yutility/test/orbitals/rkf/5%SFO_A%5.t41')
+    # print(((gridd.values * gridd.spacing[0])**2).sum())
+    # print(gridd.interpolate([0.1, -0.1, 0]))
+    # print(gridd.extent)
+    # with Screen() as scr:
+    #     scr.draw_molecule(gridd.molecule)
+    #     scr.draw_isosurface(gridd, .03, color=([0, 0, 1], [1, 0, 0]), material=materials.orbital_shiny)
+    # print(gridd.shape)
+    # for p in gridd.points:
+    #     print(p)
+    import matplotlib.pyplot as plt
+
+
+    # z = np.zeros((50, 50))
+    X, Y, Z = np.linspace(-9, 7, 50), np.linspace(-9, 7, 50), [0]
+    p = np.vstack(np.meshgrid(X, Y, Z))
+    meshed_axes = np.meshgrid(X, Y, Z, indexing='ij')
+    meshed_axes = [axis.flatten() for axis in meshed_axes]
+    p = np.vstack(meshed_axes).T
+    z = gridd.interpolate(p)
+    # for i, x in enumerate(np.linspace(-9, 7, 50)):
+    #     print(i)
+    #     for j, y in enumerate(np.linspace(-9, 7, 50)):
+    #         try:
+    #             z[i, j] = gridd.interpolate([x, y, 0])
+    #         except:
+    #             raise
+    #             z[i, j] = np.nan
+
+    plt.imshow(z)
+    plt.show()

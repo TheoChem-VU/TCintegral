@@ -38,7 +38,7 @@ class Primitive:
             a = self.exponent * 2
             for i in range(self.ndims):
                 n = self.index[i]
-                S *= double_factorial(2*n - 1)/(2**(n+1) * a**n) * sqrt(pi/a) * 2
+                S *= double_factorial(2*n - 1)/(2 * a)**n * sqrt(pi/a)
             self._norm = 1/sqrt(S)
         return self._norm
 
@@ -99,6 +99,8 @@ class Primitive:
 
 
 if __name__ == '__main__':
+    import matplotlib.pyplot as plt
+
     # build the grid of points to evaluate
     x = np.linspace(-10, 10, 100).reshape(-1, 1)
     y = np.linspace(-10, 10, 100).reshape(-1, 1)
@@ -124,7 +126,9 @@ if __name__ == '__main__':
     # test 2D:
     p = Primitive(1, (0, 0), (0, 0))  # s-orbital
     wf = p(r2).reshape(100, 100)**2
-    print(wf.sum() * dx * dy, p.norm)
+    print(wf.sum(), p.norm)
+    # plt.imshow(wf)
+    # plt.show()
 
     # test 3D:
     p = Primitive(1, (0, 0, 0), (0, 0, 0))  # s-orbital
@@ -170,3 +174,6 @@ if __name__ == '__main__':
     p = Primitive(1, (0, 0, 0), (0, 0, 2))  # d-orbital
     wf = p(r3).reshape(100, 100, 100)**2
     print(wf.sum() * dx * dy * dz, p.norm)
+
+
+    print()

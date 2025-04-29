@@ -23,7 +23,7 @@ def get_rotmat(x=0, y=0, z=0):
     return Rx @ Ry @ Rz
 
 
-def get(rkf_file, orb_name, bs_file=r"basis_sets/sto-2g.1.cp2k"):
+def get(rkf_file, orb, bs_file=r"basis_sets/sto-2g.1.cp2k"):
     bs = basis_set.BasisSet(bs_file)
     orbs = orbitals.Orbitals(rkf_file)
     xyz = np.array(orbs.reader.read('Geometry', 'xyz')).reshape(-1, 3) * 0.529177
@@ -49,7 +49,7 @@ def get(rkf_file, orb_name, bs_file=r"basis_sets/sto-2g.1.cp2k"):
     mol.guess_bonds()
 
     # viewer.show(mol)
-    orb = orbs.mos[orb_name]
+    # orb = orbs.mos[orb_name]
     ao_coeffs = {}
     for sfo, coeff in zip(orbs.sfos.sfos, orb.coeffs):
         if (sfo.fragment, sfo.name) in bs:
@@ -91,7 +91,12 @@ class MolecularOrbital:
         wf = np.zeros(r.shape[0])
         for f, coeff in zip(self.basis_functions, self.coefficients):
             wf += f(r.T) * coeff
-        return wf / sqrt(sum(wf**2))
+
+        N = np.sqrt(sum(wf * wf))
+        print(N, ",", 1/self.norm)
+
+        # return wf / np.sqrt(N)
+        return wf / self.norm
 
     def get_cub(self, p=None, cutoff=[.003, 1]):
         if p is None:
@@ -161,7 +166,7 @@ class MolecularOrbital:
             S = 0
             for coeff1, f1 in zip(self.coefficients, self.basis_functions):
                 for coeff2, f2 in zip(self.coefficients, self.basis_functions):
-                    S += coeff1 * coeff2 * f1.overlap(f2)
+                    S += coeff1 * coeff2 * f1.overlap(f2) * f1.norm * f2.norm
             self._norm = 1/sqrt(S)
         return self._norm
 
@@ -173,6 +178,7 @@ class MolecularOrbital:
                 for coeff2, f2 in zip(other.coefficients, other.basis_functions):
                     S += coeff1 * coeff2 * f1.overlap(f2)
             return S * self.norm * other.norm
+            
         elif method == 'numeric':
             x = np.linspace(-5, 5, 15).reshape(-1, 1)
             y = np.linspace(-5, 5, 15).reshape(-1, 1)
