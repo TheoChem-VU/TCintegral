@@ -1,4 +1,4 @@
-from tcutility import results, geometry, ensure_list
+from tcutility import results, geometry
 import pyfmo
 # from yutility import geometry, orbitals, ensure_list, timer
 import numpy as np
@@ -7,6 +7,12 @@ import os
 from tcintegral import molecular_orbital
 from math import cos, sin
 import matplotlib.pyplot as plt
+
+
+def ensure_list(inp):
+    if not hasattr(inp, '__iter__'):
+        return [inp]
+    return inp
 
 
 def get_rotmat(x=0, y=0, z=0):

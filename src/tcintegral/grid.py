@@ -1,11 +1,17 @@
 import numpy as np
-from listfunc import ensure_list
 from collections.abc import Iterable
 from math import ceil, floor
 import matplotlib.pyplot as plt
 from tcutility import data
 from scm import plams
 import copy
+
+
+
+def ensure_list(inp):
+    if not hasattr(inp, '__iter__'):
+        return [inp]
+    return inp
 
 
 class Grid:
