@@ -280,37 +280,34 @@ def from_cub_file(file):
     return gridd
 
 
+def from_vtk_file(file):
+    import vtk
+    import vtk.util.numpy_support
+
+    reader = vtk.vtkStructuredPointsReader()
+    reader.SetFileName(file)
+    reader.update()
+
+    data = reader.GetOutput()
+
+    spacing = [spac*0.52918 for spac in data.GetSpacing()]  # spacing in angstrom
+    gridd = Grid(spacing)
+
+    extent = data.GetExtent()  # number of points in each cardinal direction
+    gridd._shape = extent[1]+1, extent[3]+1, extent[5]+1
+
+    # get the values associated with the points
+    # converted to numpy
+    values = data.GetPointData().GetScalars()
+    array = vtk.util.numpy_support.vtk_to_numpy(values)
+    gridd.values = array
+    
+    gridd.origin = [x*0.52918 for x in data.GetOrigin()]  # origin in angstrom
+
+    # convert row (Fortran standard) to column (numpy standard) major for this array
+    gridd.values = gridd.values.reshape(*gridd.shape, order='F').ravel()
+
+    return gridd
 
 if __name__ == '__main__':
-    from tcviewer import Screen, materials
-    gridd = from_cub_file('/Users/yumanhordijk/PhD/yutility/test/orbitals/rkf/5%SFO_A%5.t41')
-    # print(((gridd.values * gridd.spacing[0])**2).sum())
-    # print(gridd.interpolate([0.1, -0.1, 0]))
-    # print(gridd.extent)
-    # with Screen() as scr:
-    #     scr.draw_molecule(gridd.molecule)
-    #     scr.draw_isosurface(gridd, .03, color=([0, 0, 1], [1, 0, 0]), material=materials.orbital_shiny)
-    # print(gridd.shape)
-    # for p in gridd.points:
-    #     print(p)
-    import matplotlib.pyplot as plt
-
-
-    # z = np.zeros((50, 50))
-    X, Y, Z = np.linspace(-9, 7, 50), np.linspace(-9, 7, 50), [0]
-    p = np.vstack(np.meshgrid(X, Y, Z))
-    meshed_axes = np.meshgrid(X, Y, Z, indexing='ij')
-    meshed_axes = [axis.flatten() for axis in meshed_axes]
-    p = np.vstack(meshed_axes).T
-    z = gridd.interpolate(p)
-    # for i, x in enumerate(np.linspace(-9, 7, 50)):
-    #     print(i)
-    #     for j, y in enumerate(np.linspace(-9, 7, 50)):
-    #         try:
-    #             z[i, j] = gridd.interpolate([x, y, 0])
-    #         except:
-    #             raise
-    #             z[i, j] = np.nan
-
-    plt.imshow(z)
-    plt.show()
+    grid = from_vtk_file(r"C:\Users\yhk800\PyFMO\examples\bonding_antibonding\medium%SFO_A_B%27.cub")
