@@ -1,5 +1,4 @@
 from tcutility import results, geometry
-import pyfmo
 # from yutility import geometry, orbitals, ensure_list, timer
 import numpy as np
 # from yviewer import viewer
@@ -39,10 +38,8 @@ class Reactant:
         self.mol = self.rkf_res.molecule.input
         self.loaded_wfs = []
         self.transform = geometry.Transform()
-        self._orbitals = pyfmo.orbitals.Orbitals(self.rkf_res.files['adf.rkf'])
         self.mos = []
         self.bs_file = bs_file
-        # self.mos = [molecular_orbital.get(self.rkf_res.files['adf.rkf'], mo.name, bs_file) for mo in self._orbitals.mos]
 
     def translate(self, trans):
         self.mol.translate(trans)
@@ -61,31 +58,6 @@ class Reactant:
     def coords(self):
         return self.transform.apply(np.array([atom.coords for atom in self.mol]))
 
-    def load_mos(self, start, end=None):
-        if end:
-            mos = self._orbitals.mos[start:end]
-        else:
-            mos = self._orbitals.mos[start]
-
-        for mo in ensure_list(mos):
-            orb = molecular_orbital.get(self.rkf_res.files['adf.rkf'], mo.name, self.bs_file)
-            orb.moleculename = self.moleculename
-            self.mos.append(orb)
-
-    # def show(self, p=None):
-    #     if p is None:
-    #         x = np.linspace(-6, 6, 50).reshape(-1, 1)
-    #         y = np.linspace(-6, 6, 50).reshape(-1, 1)
-    #         z = np.linspace(-6, 6, 50).reshape(-1, 1)
-
-    #         p = np.meshgrid(x, y, z)
-    #         p = [r_.flatten() for r_ in p]
-    #         p = np.vstack(p).T
-
-    #     nmos = len(self.mos)
-    #     viewer.show([self.mol] * nmos, molinfo=[{'cub': mo.get_cub(p)} for mo in self.mos])
-
-    # @timer.time
     def overlap(self, other: 'Reactant'):
         nmo1 = len(self.mos)
         nmo2 = len(other.mos)
@@ -100,9 +72,7 @@ if __name__ == '__main__':
     # with timer.Timer('Load reactants'):
     rct1 = Reactant(r"/Users/yumanhordijk/PhD/fast_EDA/calculations/butadiene")
     rct2 = Reactant(r"/Users/yumanhordijk/PhD/fast_EDA/calculations/ethene")
-    rct1.load_mos('HOMO-4', 'LUMO+4')
-    rct2.load_mos('HOMO-4', 'LUMO+4')
-
+    
     # rct1.load_mos('LUMO+1')
     # rct2.load_mos('HOMO')
     # with timer.Timer('Place reactants'):
