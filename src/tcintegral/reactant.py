@@ -1,9 +1,8 @@
-from tcutility import results, geometry
+from tcmu import results, geometry
 # from yutility import geometry, orbitals, ensure_list, timer
 import numpy as np
 # from yviewer import viewer
 import os
-from tcintegral import molecular_orbital
 from math import cos, sin
 import matplotlib.pyplot as plt
 
@@ -72,7 +71,7 @@ if __name__ == '__main__':
     # with timer.Timer('Load reactants'):
     rct1 = Reactant(r"/Users/yumanhordijk/PhD/fast_EDA/calculations/butadiene")
     rct2 = Reactant(r"/Users/yumanhordijk/PhD/fast_EDA/calculations/ethene")
-    
+
     # rct1.load_mos('LUMO+1')
     # rct2.load_mos('HOMO')
     # with timer.Timer('Place reactants'):

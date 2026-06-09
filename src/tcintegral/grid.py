@@ -308,6 +308,3 @@ def from_vtk_file(file):
     gridd.values = gridd.values.reshape(*gridd.shape, order='F').ravel()
 
     return gridd
-
-if __name__ == '__main__':
-    grid = from_vtk_file(r"C:\Users\yhk800\PyFMO\examples\bonding_antibonding\medium%SFO_A_B%27.cub")
