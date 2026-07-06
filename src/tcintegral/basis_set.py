@@ -1,4 +1,4 @@
-from tcutility.results.result import Result
+from tcmu.results.result import Result
 import numpy as np
 from tcintegral import contracted
 import os

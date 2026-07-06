@@ -2,7 +2,7 @@ import numpy as np
 from collections.abc import Iterable
 from math import ceil, floor
 import matplotlib.pyplot as plt
-from tcutility import data
+from tcmu import data
 from scm import plams
 import copy
 
